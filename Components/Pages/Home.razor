@@ -1,6 +1,19 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+
+
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, butts!</h1>
+<h1>Hello @Message!</h1>
 
+<button @onclick="ChangeMessage">Butts</button>
+
+@code {
+    public string Message { get; set; } = "world";
+
+    private void ChangeMessage()
+    {
+        Message = "butts, lmao";
+    }
+}
