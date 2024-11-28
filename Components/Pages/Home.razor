@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.ComponentModel.DataAnnotations
 @using ButtButton.Database
 @rendermode InteractiveServer
 @inject ButtContext Context
@@ -10,29 +11,70 @@
 
 <button @onclick="ChangeMessage">Butts</button>
 <p>@NumberOfClicks people have clicked.</p>
-<h2><strike>Guest</strike>Buttbook</h2>
-<form>
-    <p>
-    <label for="name">
-        Name
-    </label>
-    <input type="text" id="name" placeholder="Name"/>
-    </p>
-    
-    <p><label for="message">
-        Message
-    </label>
-    <textarea id="message" placeholder="Say hello!" cols="40" rows="20"></textarea></p>
-    <button type="submit">Submit</button>
-</form>
+<div>
+    <h2><strike>Guest</strike>Buttbook</h2>
+    <ul>
+        @foreach (var entry in Entires)
+        {
+            <li>
+                <strong>Message from @entry.Author</strong>
+                <pre>@entry.Message</pre>
+            </li>
+        }
+    </ul>
+    <EditForm Model="Submission" OnValidSubmit="SaveEntry">
+        <p>
+            <label for="name">
+                Name
+            </label>
+            <InputText id="name" @bind-Value="Submission.Author" placeholder="Name"/>
+        </p>
+
+        <p>
+            <label for="message">
+                Message
+            </label>
+            <InputTextArea id="message" @bind-Value="Submission.Message" placeholder="Say hello!" cols="20" rows="8"></InputTextArea>
+        </p>
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <button type="submit">Submit</button>
+    </EditForm>
+</div>
+
 @code {
+
+    public class GuestbookEntry
+    {
+        [Required(ErrorMessage = "Name is required.")]
+        public string Author { get; set; }
+
+        [Required(ErrorMessage = "Message is required.")]
+
+        public string Message { get; set; }
+    }
+
+    private GuestbookEntry Submission = new();
+
     public string Message { get; set; } = "world";
+    public List<GuestbookEntry> Entires = new();
     public int NumberOfClicks = 0;
+
+    private void SaveEntry()
+    {
+        Context.Messages.Add(new Message() { Author = Submission.Author, Content = Submission.Message });
+        Context.SaveChanges();
+        Submission.Message = "";
+        Submission.Author = "";
+        Entires = Context.Messages.Select(x => new GuestbookEntry() { Author = x.Author, Message = x.Content }).ToList();
+
+    }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         NumberOfClicks = Context.Clicks.Count();
+        Entires = Context.Messages.Select(x => new GuestbookEntry() { Author = x.Author, Message = x.Content }).ToList();
     }
 
     private void ChangeMessage()
@@ -42,4 +84,5 @@
         Context.SaveChanges();
         NumberOfClicks = Context.Clicks.Count();
     }
+
 }
