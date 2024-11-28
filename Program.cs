@@ -1,10 +1,14 @@
 using ButtButton.Components;
+using ButtButton.Database;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddDbContext<ButtContext>(options =>
+    options.UseSqlite("Data Source=butts.db"));
 
 var app = builder.Build();
 
@@ -16,6 +20,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ButtContext>();
+    dbContext.MigrateDatabase();
+}
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

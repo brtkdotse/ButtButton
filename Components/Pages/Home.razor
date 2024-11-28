@@ -1,6 +1,7 @@
 ﻿@page "/"
+@using ButtButton.Database
 @rendermode InteractiveServer
-
+@inject ButtContext Context
 
 
 <PageTitle>Home</PageTitle>
@@ -8,12 +9,37 @@
 <h1>Hello @Message!</h1>
 
 <button @onclick="ChangeMessage">Butts</button>
-
+<p>@NumberOfClicks people have clicked.</p>
+<h2><strike>Guest</strike>Buttbook</h2>
+<form>
+    <p>
+    <label for="name">
+        Name
+    </label>
+    <input type="text" id="name" placeholder="Name"/>
+    </p>
+    
+    <p><label for="message">
+        Message
+    </label>
+    <textarea id="message" placeholder="Say hello!" cols="40" rows="20"></textarea></p>
+    <button type="submit">Submit</button>
+</form>
 @code {
     public string Message { get; set; } = "world";
+    public int NumberOfClicks = 0;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        NumberOfClicks = Context.Clicks.Count();
+    }
 
     private void ChangeMessage()
     {
         Message = "butts, lmao";
+        Context.Clicks.Add(new Click() { Timestamp = DateTime.Now });
+        Context.SaveChanges();
+        NumberOfClicks = Context.Clicks.Count();
     }
 }
