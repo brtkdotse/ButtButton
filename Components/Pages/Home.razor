@@ -62,7 +62,11 @@
 
     private void SaveEntry()
     {
-        Context.Messages.Add(new Message() { Author = Submission.Author, Content = Submission.Message.Substring(0,500) });
+        Context.Messages.Add(new Message()
+        {
+            Author = Submission.Author, 
+            Content = Submission.Message.Length > 500 ? Submission.Message.Substring(0,500) : Submission.Message
+        });
         Context.SaveChanges();
         Submission.Message = "";
         Submission.Author = "";
