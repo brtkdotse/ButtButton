@@ -2,13 +2,15 @@ using ButtButton.Components;
 using ButtButton.Database;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("SQLite");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDbContext<ButtContext>(options =>
-    options.UseSqlite("Data Source=butts.db"));
+    options.UseSqlite(connectionString));
 
 var app = builder.Build();
 
